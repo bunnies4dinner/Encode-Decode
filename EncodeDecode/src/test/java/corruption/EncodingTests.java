@@ -28,4 +28,22 @@ public class EncodingTests {
         assertEquals(input.length()*3, Encode.simpleEncoder(input).length());
     }
 
+    /* bitWiseEncoder */
+    @Test
+    void BitWiseEncoder_ReturnsGreaterLengthAsInput() {
+
+        assertFalse(input.length() == Encode.bitWiseEncoder(input).length());
+    }
+    @Test
+    void BitWiseEncoder_ReturnsString() {
+        assertTrue(Encode.bitWiseEncoder(input) instanceof String);
+    }
+
+    @Test
+    void BitWiseEncoder_ReturnsLengthDivisibleBy4() {
+        assertTrue(Encode.bitWiseEncoder(input).length()%4==0);
+        assertTrue(Encode.bitWiseEncoder("abc").length()%4==0);
+        assertTrue(Encode.bitWiseEncoder("input-NOT_divisibleBy4!").length()%4==0);
+    }
+
 }

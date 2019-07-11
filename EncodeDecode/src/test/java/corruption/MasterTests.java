@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MasterTests {
     private final String input = "nobody likes pineapple pizza";
 
-    /* MASTER TESTS */
+    /* simple */
     @Test
     void SimpleEncodingAndCorruption_ShouldHaveSameOutputLength() {
         String encoded = Encode.simpleEncoder(input);
@@ -21,17 +21,19 @@ public class MasterTests {
         assertEquals(input, Decode.simpleDecoder(Corrupt.simpleCorruption(Encode.simpleEncoder(input))));
     }
 
+    /* bit-wise */
+
     @Test
     void BitWiseEncodingAndCorruption_ShouldHaveSameOutputLength() {
         String encoded = Encode.simpleEncoder(input);
-        String corruptedBytes = Corrupt.bitCorruptionBYTE(encoded);
+        String corruptedBytes = Corrupt.byteCorruption(encoded);
 
         assertEquals(encoded.length(), corruptedBytes.length());
     }
 
     @Test
-    void SimpleDecoder_DecodesCorruptedBytesInputPerfectlyBack() {
+    void BitWiseDecoder_DecodesCorruptedBytesInputPerfectlyBack() {
 
-        assertEquals(input, Decode.simpleDecoder(Corrupt.bitCorruptionBYTE(Encode.simpleEncoder(input))));
+       assertEquals(input, Decode.bitWiseDecoder(Corrupt.bitCorruption(Encode.bitWiseEncoder(input))));
     }
 }
