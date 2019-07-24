@@ -9,22 +9,21 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CorruptingTests {
 
     private final String input = "nobody likes pineapple pizza";
-    private final String binIn = Helper.textToBinary(input);
-    private final String binB = Helper.textToBinary("B");
 
-    /* simpleCorruption */
+
+    /* TEST simpleCorruption */
     @Test
-    void SimpleCorruption_ReturnsString() {
-        assertTrue(Corrupt.simpleCorruption("abc123ABC") instanceof String);
+    void SimpleCorruption_ReturnsNonBinaryString() {
+        assertFalse(Helper.isBinary(Corrupt.simpleCorruption("abc123ABC")));
     }
 
     @Test
-    void SimpleCorruption_ReturnsString_WithOddNumber() {
+    void SimpleCorruption_ReturnsString_WithOddNumberInput() {
         assertTrue(Corrupt.simpleCorruption("abc12") instanceof String);
     }
 
     @Test
-    void SimpleCorruption_ReturnsSameLengthAsInput() {
+    void SimpleCorruption_OutputHasSameLengthAsInput() {
         assertEquals(input.length(), Corrupt.simpleCorruption(input).length());
     }
 
@@ -33,10 +32,10 @@ public class CorruptingTests {
         assertNotEquals("abc123ABC", (Corrupt.simpleCorruption("abc123ABC")));
     }
 
-    /* rngOneOfThree */
+    /* TEST rngOneOfThree */
     @Test
-    void RngOneOfThree_ReturnsString() {
-        assertTrue(Corrupt.rngOneOfThree("abc") instanceof String);
+    void RngOneOfThree_ReturnsNonBinaryString() {
+        assertFalse(Helper.isBinary(Corrupt.rngOneOfThree("abc")));
     }
 
     @Test
@@ -50,6 +49,11 @@ public class CorruptingTests {
     }
 
     @Test
+    void RngOneOfThree_OutputHasSameLengthAsInput() {
+        assertTrue("abc".length() == Corrupt.rngOneOfThree("abc").length());
+    }
+
+    @Test
     void RngOneOfThree_ThrowsExceptionError_WhenInputGreaterThanThreeCharsLong() {
         Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
             Corrupt.rngOneOfThree("abcd");
@@ -58,9 +62,11 @@ public class CorruptingTests {
         assertEquals("String must be less than 4 chars long!", exception.getMessage());
     }
 
-    /* bitCorruption */
+    /* TEST bitCorruption */
+    private final String binIn = Helper.textToBinary(input);
+
     @Test
-    void BitCorruption_returnsOtherStringThanReceived() {
+    void BitCorruption_ReturnsOtherStringThanReceived() {
         assertNotEquals(binIn, Corrupt.bitCorruption(binIn));
     }
 
@@ -70,16 +76,41 @@ public class CorruptingTests {
     }
 
     @Test
-    void BitCorruption_ReturnsOnlyBinary() {
+    void BitCorruption_ReturnsBinaryString() {
         assertTrue(Pattern.matches("[01]+", Corrupt.bitCorruption(binIn)));
     }
 
     @Test
-    void BitCorruption_ReturnsSameLengthAsReceived() {
-        assertEquals(binIn.length(), Corrupt.rngBitWise(binIn).length());
+    void BitCorruption_OutputHasSameLengthAsInput() {
+        assertEquals(binIn.length(), Corrupt.bitCorruption(binIn).length());
     }
 
-    /* rngBitWise */
+    /* TEST hamCorruption */
+    private final String hamIn = Encode.hammingEncoder(input);
+
+    @Test
+    void HamCorruption_ReturnsOtherStringThanReceived() {
+        assertNotEquals(hamIn, Corrupt.hamCorruption(hamIn));
+    }
+
+    @Test
+    void HamCorruption_StillWorks_IfInputIsNotBinary() {
+        assertTrue(Pattern.matches("[01]+", Corrupt.hamCorruption(Helper.binaryToText(hamIn))));
+    }
+
+    @Test
+    void HamCorruption_ReturnsBinaryString() {
+        assertTrue(Pattern.matches("[01]+", Corrupt.hamCorruption(hamIn)));
+    }
+
+    @Test
+    void HamCorruption_OutputHasSameLengthAsInput() {
+        assertEquals(hamIn.length(), Corrupt.hamCorruption(hamIn).length());
+    }
+
+    /* TEST rngBitWise */
+    private final String binB = Helper.textToBinary("B");
+
     @Test
     void RngBitWise_ReturnsOtherStringThanReceived() {
         assertNotEquals(binB, Corrupt.rngBitWise(binB));
@@ -92,55 +123,13 @@ public class CorruptingTests {
     }
 
     @Test
-    void RngBitWise_ReturnsOnlyBinary() {
+    void RngBitWise_ReturnsBinaryString() {
         assertTrue(Pattern.matches("[01]+", Corrupt.rngBitWise(binB)));
     }
 
     @Test
-    void RngBitWise_ReturnsSameLengthAsReceived() {
+    void RngBitWise_OutputHasSameLengthAsInput() {
         assertEquals(binB.length(), Corrupt.rngBitWise(binB).length());
-    }
-
-    /* byteCorruption */
-    @Test
-    void ByteCorruption_ReturnsString() {
-        assertTrue(Corrupt.byteCorruption("abc123ABC") instanceof String);
-    }
-
-    @Test
-    void ByteCorruption_ReturnsOtherStringThanReceived() {
-        assertNotEquals("abc123ABC", (Corrupt.byteCorruption("abc123ABC")));
-    }
-
-    @Test
-    void ByteCorruption_ReturnsSameLengthAsInput() {
-        assertEquals(input.length(), Corrupt.byteCorruption(input).length());
-    }
-
-    /* rngMyByte */
-    @Test
-    void RngMyByte_ReturnsOtherByteThanReceived() {
-        assertNotEquals((byte) 49, Corrupt.rngMyByte((byte) 49));
-    }
-
-    @Test
-    void RngMyByte_ThrowsExceptionError_WhenInputIsZero() {
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
-            Corrupt.rngMyByte((byte) 0);
-        });
-
-        assertEquals("Did not receive byte", exception.getMessage());
-    }
-
-    /* bitCorruptionRET */
-    @Test
-    void BitCorruptionRET_ReturnsOtherValueThanReceived() {
-        assertNotEquals(input, (Corrupt.bitCorruptionRET(input)));
-    }
-
-    @Test
-    void BitCorruptionRET_ReturnsSameLengthAsInput() {
-        assertEquals(input.length(), new String(Corrupt.bitCorruptionRET(input)).length());
     }
 
 }

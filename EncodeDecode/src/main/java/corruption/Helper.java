@@ -1,5 +1,6 @@
 package corruption;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public class Helper {
@@ -14,7 +15,7 @@ public class Helper {
         for (char c : textAsChar) {
             String binarySingleChar = Integer.toBinaryString(c);
             while (binarySingleChar.length() < 8) {
-                // make every Byte 8 digits long
+                // DOC: make every Byte 8 digits long
                 binarySingleChar = "0" + binarySingleChar;
             }
             binaryOut = binaryOut.concat(binarySingleChar);
@@ -31,17 +32,37 @@ public class Helper {
             throw new IllegalArgumentException("Input was NOT (pure) binary!");
         }
         String textOut = "";
-        for (int i = 0; i < binaryIn.length(); i += 8) {
-            String oneByte = binaryIn.substring(i, i + 8);
+        int bL = binaryIn.length();
+        // DOC: there is no edge-case where length is possibly anything else than 7, 8 or 11
+        int bitRange = bL % 8 == 0 ? 8 : bL % 7 == 0 ? 7 : 11;
+        for (int i = 0; i < binaryIn.length(); i += bitRange) {
+            String oneByte = binaryIn.substring(i, i + bitRange);
             char c = (char) Integer.parseInt(oneByte, 2);
             textOut = textOut.concat(Character.toString(c));
         }
         return textOut;
     }
 
-    static int charToInt(char charIn) {
-        String oneBit = Character.toString(charIn);
-        return Integer.parseInt(oneBit);
+    /**
+     * @param textIn input String
+     * @return String in hexadecimal
+     * input can be binary or non-binary
+     */
+    static String toHex(String textIn) {
+        if (!isBinary(textIn)) {
+            textIn = textToBinary(textIn);
+        }
+        String hexOut = "";
+        // iterate byte-sized or else binary strings are too much
+        for (int i = 0; i < textIn.length(); i += 8) {
+            String oneByte = textIn.substring(i, i + 8);
+            int dec = Integer.parseInt(oneByte, 2);
+            hexOut = hexOut.concat(Integer.toString(dec, 16));
+        }
+
+        hexOut = hexOut.replaceAll("..(?!$)", "$0 ");
+
+        return hexOut;
     }
 
     /**
@@ -50,6 +71,16 @@ public class Helper {
      */
     static boolean isBinary(String myString) {
         return Pattern.matches("[01]+", myString);
+    }
+
+    /**
+     * @param myArray the Array you want to convert
+     * @return a string from your Array
+     * turns an int Array into a readable String w/o braces and stuff
+     */
+    static String stringifyArray(int[] myArray) {
+        String stringify = Arrays.toString(myArray);
+        return stringify.replaceAll(", ", "").replaceAll("\\[", "").replaceAll("\\]", "");
     }
 
 }
